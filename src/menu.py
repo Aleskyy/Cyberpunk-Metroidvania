@@ -1,10 +1,14 @@
-import pygame, json
+import json
 
-from ui import UI
-from level import Level
-from settings import *
+import pygame
 
-class Menu():
+from settings import WIDTH, HEIGHT
+from settings import load_data, gun_data, pickup_data, extra_healths_collected, levels_visited, saved_gun_data
+from settings import neobit_data, health_data
+from settings import saved_pickup_data, saved_levels_visited, saved_extra_healths_collected
+
+
+class Menu:
 	def __init__(self, game):
 		self.game = game
 		self.center_x = WIDTH //2
@@ -27,19 +31,21 @@ class Menu():
 class MainMenu(Menu):
 	def __init__(self, game):
 		Menu.__init__(self, game)
-		self.state = "Continue"
+		self.state = "Play"
 
 		self.continue_x = self.center_x
 		self.continue_y = self.center_y + 30
 
-		self.reset_x = self.center_x
-		self.reset_y = self.center_y + 60
+		# self.reset_x = self.center_x
+		# self.reset_y = self.center_y + 60
 
 		self.options_x = self.center_x
-		self.options_y = self.center_y + 90
+		# self.options_y = self.center_y + 90
+		self.options_y = self.center_y + 60
 
 		self.quit_x = self.center_x
-		self.quit_y = self.center_y + 120
+		# self.quit_y = self.center_y + 120
+		self.quit_y = self.center_y + 90
 
 		self.cursor_rect.midtop = (self.continue_x + self.offset, self.continue_y)
 
@@ -50,8 +56,8 @@ class MainMenu(Menu):
 			self.check_input()
 			self.game.display.fill(self.game.BLACK)
 			self.game.draw_text('Main Menu', 50, (WIDTH // 2, HEIGHT // 2 - 30))
-			self.game.draw_text('Continue', 30, (self.continue_x, self.continue_y))
-			self.game.draw_text('Reset', 30, (self.reset_x, self.reset_y))
+			self.game.draw_text('Play', 30, (self.continue_x, self.continue_y))
+			# self.game.draw_text('Reset', 30, (self.reset_x, self.reset_y))
 			self.game.draw_text('Options', 30, (self.options_x, self.options_y))
 			self.game.draw_text('Quit', 30, (self.quit_x, self.quit_y))
 			self.draw_cursor()
@@ -59,37 +65,39 @@ class MainMenu(Menu):
 
 	def move_cursor(self):
 		if self.game.actions['down']:
-			if self.state == 'Continue':
-				self.cursor_rect.midtop = (self.reset_x + self.offset, self.reset_y)
-				self.state = 'Reset'
-			elif self.state == 'Reset':
+			if self.state == 'Play':
+				# self.cursor_rect.midtop = (self.reset_x + self.offset, self.reset_y)
 				self.cursor_rect.midtop = (self.options_x + self.offset, self.options_y)
 				self.state = 'Options'
+			# elif self.state == 'Reset':
+			# 	self.cursor_rect.midtop = (self.options_x + self.offset, self.options_y)
+			# 	self.state = 'Options'
 			elif self.state == 'Options':
 				self.cursor_rect.midtop = (self.quit_x + self.offset, self.quit_y)
 				self.state = 'Quit'
 			elif self.state == 'Quit':
 				self.cursor_rect.midtop = (self.continue_x + self.offset, self.continue_y)
-				self.state = 'Continue'
+				self.state = 'Play'
 
 		if self.game.actions['up']:
-			if self.state == 'Continue':
+			if self.state == 'Play':
 				self.cursor_rect.midtop = (self.quit_x + self.offset, self.quit_y)
 				self.state = 'Quit'
 			elif self.state == 'Quit':
 				self.cursor_rect.midtop = (self.options_x + self.offset, self.options_y)
 				self.state = 'Options'
 			elif self.state == 'Options':
-				self.cursor_rect.midtop = (self.reset_x + self.offset, self.reset_y)
-				self.state = 'Reset'
+				# self.cursor_rect.midtop = (self.reset_x + self.offset, self.reset_y)
+				self.cursor_rect.midtop = (self.continue_x + self.offset, self.continue_y)
+				self.state = 'Play'  # 'Reset'
 			elif self.state == 'Reset':
 				self.cursor_rect.midtop = (self.continue_x + self.offset, self.continue_y)
-				self.state = 'Continue'
+				self.state = 'Play'
 
 	def check_input(self):
 		self.move_cursor()
 		if self.game.actions['return']:
-			if self.state == 'Continue':
+			if self.state == 'Play':
 				self.game.playing = True
 			elif self.state == 'Reset':
 				self.game.current_menu = self.game.reset
@@ -137,8 +145,12 @@ class ResetMenu(Menu):
 
 		elif self.game.actions['return']:
 			if self.state == 'ok':
+				# -----------------------
+				#  start a new run
+				# -----------------------
 				self.game.neobits = 0
-				self.game.max_health = self.game.start_health
+				# not used because
+				# self.game.max_health = defs.MAX_HEALTH
 				self.game.current_health = self.game.max_health
 				gun_data.clear()
 				saved_gun_data.clear()
@@ -156,9 +168,9 @@ class ResetMenu(Menu):
 				with open('progress_data.txt', 'w') as progress_file:
 					json.dump(load_data, progress_file)
 				self.game.level.load_point()
-
 				self.game.current_menu = self.game.main_menu
 				self.run_display = False
+
 			elif self.state == 'cancel':
 				self.game.current_menu = self.game.main_menu
 				self.run_display = False

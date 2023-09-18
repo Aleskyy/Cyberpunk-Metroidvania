@@ -1,13 +1,18 @@
-import pygame, csv, json
-from tile import Tile, VanishingBlocks, Platform, Elevator, AnimatedTile, Exit, Melee, Bullet, Crate, Gun, Pickup, SavePoint
-from settings import *
+import csv
+import json
+import pygame
+
 from camera import LayerCameraGroup
-from player import Player
 from enemies import NPC, Guard, ArmedGuard
-from support import import_csv, import_folder
-from pause import Pause, PickupPause, DialogueBox, LevelIntro, Transition
 from map import Map
 from particles import Particles
+from pause import Pause, PickupPause, DialogueBox, LevelIntro, Transition
+from player import Player
+from settings import *
+from support import import_csv, import_folder
+from tile import Tile, VanishingBlocks, Platform, Elevator, AnimatedTile, Exit, Melee, Bullet, Crate, Gun, Pickup, \
+	SavePoint
+
 
 class Level:
 	def __init__(self, game, current_level, entry_pos, new_block_position, current_gun, gun_showing, surf, create_level, update_neobits, update_health):
@@ -22,6 +27,7 @@ class Level:
 
 		# setup level
 		self.game = game
+		print('game:', game)
 		self.new_block_position = new_block_position
 		self.current_gun = current_gun
 		self.gun_showing = gun_showing
@@ -72,7 +78,7 @@ class Level:
 		self.vanishing_block_sprites = pygame.sprite.Group()
 		self.liquid_sprites = pygame.sprite.Group()
 
-		#exit doors
+		# exit doors
 		self.exit_sprites = pygame.sprite.Group()
 		self.save_sprites = pygame.sprite.GroupSingle()
 
@@ -432,18 +438,21 @@ class Level:
 
 	def save_point(self):
 		self.collided_save = pygame.sprite.spritecollide(self.player, self.save_sprites, False)
-		if not self.player.run_in and self.collided_save and self.game.actions['up'] and self.player.vel.x == 0:
-			self.game.save_fx.play()
-			self.store_save_data()
-			self.pickup_pause = True
-			self.player.hold = True
-			self.load_point()
-		elif self.collided_save and self.player.run_in:
-			self.store_save_data()
-		elif self.collided_save:
-			Pause(self.game, 'Checkpoint', "Press up to save game", self.display_surf).run()
+		if self.collided_save:
+			if not self.player.run_in and self.game.actions['up'] and self.player.vel.x == 0:
+				self.game.save_fx.play()
+				self.store_save_data()
+				self.pickup_pause = True
+				self.player.hold = True
+				self.load_point()
+			else:
+				Pause(self.game, 'Checkpoint', "Press up to save game", self.display_surf).run()
 
 	def store_save_data(self):
+		print('-'*33)
+		print('  SAVE GAME DONE')
+		print('-'*33)
+
 		self.dump_data('gun_data.txt', 'gun_file', saved_gun_data, gun_data)
 		saved_gun_data.update(gun_data)
 
@@ -461,9 +470,13 @@ class Level:
 
 		health_data.update({'max_health': self.game.max_health})
 		self.dump_data('health_data.txt', 'health_file', health_data, health_data)
-		
-		load_data.update({'save_point': self.current_level, 'block_position': self.new_block_position, \
-		'current_gun': self.current_gun, 'gun_showing': self.gun_showing})
+
+		load_data.update({
+			'save_point': self.current_level,
+			'block_position': self.new_block_position,
+			'current_gun': self.current_gun,
+			'gun_showing': self.gun_showing
+		})
 							
 	def load_point(self):
 		self.new_block_position = self.block_position
@@ -620,30 +633,4 @@ class Level:
 			self.pickup_cooldown()
 			self.entry_cooldown()
 			self.exit_level()
-			self.save_point()
-			
-
-
-
-		
-	
-
-
-		
-
-		
-
-
-
-		
-
-
-
-
-	
-
-	
-
-
-
-		
+			self.save_point()  # allows save game

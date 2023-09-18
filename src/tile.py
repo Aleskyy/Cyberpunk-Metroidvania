@@ -508,27 +508,39 @@ class Bullet(Entity):
 
 				print(enemy.alive)
 
-	def player_hit(self):
+	def player_hit(self) -> None:
+		"""
+		test whether the player gets hit by anything, proc the effect
+		"""
 		if self.game.level.player.alive:
 			for sprite in self.game.level.bullet_sprites:
 				if sprite.rect.colliderect(self.game.level.player):
-					Particles(self.game.level.player, [self.game.level.visible_sprites, self.game.level.active_sprites], 'flash')
+					Particles(
+						self.game.level.player,
+						[self.game.level.visible_sprites, self.game.level.active_sprites],
+						'flash'
+					)
 					if self.game.current_health >= 0:
 						self.game.current_health -= self.damage
 					sprite.kill()
 					if self.game.current_health <= 0:
 						self.game.current_health = 0
-						Particles(self.game.level.player, [self.game.level.visible_sprites, self.game.level.active_sprites], 'player')
+						Particles(
+							self.game.level.player,
+							[self.game.level.visible_sprites, self.game.level.active_sprites],
+							'player'
+						)
 						self.game.level.player.alive = False
 						self.game.level.player.kill()
 						if self.game.level.player.gun_showing:
 							self.game.level.gun_sprite.kill()			
-				
+
 	def update(self):
 		self.player_hit()
 		self.enemy_hit()
 		self.collisions()
 		self.bullet_speed()
+
 
 class Pickup(AnimatedTile):
 	def __init__(self, pos, groups, path, index, name):

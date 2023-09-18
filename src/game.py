@@ -125,7 +125,8 @@ class Game():
 			elif self.actions['d']:
 				self.level.player.dash()
 			elif self.actions['i']:
-				self.level.show_inventory()
+				# self.level.show_inventory()
+				pass
 			if not self.level.player.alive:
 				if self.actions['y']:
 					self.level.load_point()
