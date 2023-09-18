@@ -16,9 +16,13 @@ class UI:
 		self.font = pygame.font.Font(UI_FONT, 24)
 
 	def show_health(self, current, full):
-		self.health_bar = pygame.Surface((current * SCALE, 24))
+		max_size_px = 64*SCALE
+		ratio = (current/full)
+		bordersize = 6
+		current_size_px = ratio*max_size_px
+		self.health_bar = pygame.Surface((current_size_px, 24))
 		self.health_bar.fill(GREEN)
-		self.health_bar_border = pygame.Surface((full * SCALE + 6, self.health_bar.get_height() +6))
+		self.health_bar_border = pygame.Surface((max_size_px+bordersize, self.health_bar.get_height()+bordersize))
 
 		self.display_surf.blit(self.health_bar_border,(24,24))
 		self.display_surf.blit(self.health_bar,(27,27))
