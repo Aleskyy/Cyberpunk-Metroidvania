@@ -1,15 +1,15 @@
-import pygame, sys, json
 from pygame import mixer
-from menu import *
-from ui import UI
-from settings import *
-from level import Level
 
-class Game():
+from level import Level
+from menu import *
+from settings import *
+from ui import UI
+
+
+class Game:
 	def __init__(self):
 		pygame.init()
-
-		#sound
+		# sound
 		mixer.init()
 		pygame.mixer.music.load('audio/Detox.mp3')
 		pygame.mixer.music.set_volume(0.2)
@@ -38,6 +38,10 @@ class Game():
 		self.double_jump_fx = pygame.mixer.Sound('audio/sfx/electroshot.wav')
 		self.double_jump_fx.set_volume(0.5)
 
+		with open('settings.json', 'r') as fp:
+			settings_json_content = json.load(fp)
+			self.max_health = settings_json_content['max_health']
+			self.max_fps = settings_json_content['max_fps']
 
 		with open('progress_data.txt') as progress_file:
 			load_data = json.load(progress_file)
@@ -47,9 +51,6 @@ class Game():
 
 		with open('neobit_data.txt') as neobit_file:
 			neobit_data = json.load(neobit_file)
-
-		with open('health_data.txt') as health_file:
-			health_data = json.load(health_file)
 
 		with open('extra_healths_data.txt') as extra_healths_file:
 			extra_healths_collected = json.load(extra_healths_file)
@@ -77,7 +78,8 @@ class Game():
 		self.main_menu = MainMenu(self)
 		self.options = OptionsMenu(self)
 		self.quit = QuitMenu(self)
-		self.reset = ResetMenu(self)
+		# temporarly disabled
+		# self.reset = ResetMenu(self)
 		self.level = Level(self, load_data['save_point'], 0, load_data['block_position'], 0, False, self.screen, self.create_level, self.update_neobits, self.update_health)	
 
 		self.current_menu = self.main_menu
@@ -88,16 +90,10 @@ class Game():
 		else:
 			self.neobits = 0
 
-		self.start_health = 50
-		if health_data:
-			self.max_health = health_data['max_health']
-		else:
-			self.max_health = self.start_health
-
+		# self.start_health = defs.MAX_HEALTH
 		self.current_health = self.max_health
 		self.ui = UI(self.screen)
-		
-	
+
 	def update_neobits(self, amount):
 		self.neobits += amount
 
@@ -125,8 +121,8 @@ class Game():
 			elif self.actions['d']:
 				self.level.player.dash()
 			elif self.actions['i']:
-				# self.level.show_inventory()
-				pass
+				print('current health:', self.level.game.current_health)
+			# 	self.level.show_inventory()
 			if not self.level.player.alive:
 				if self.actions['y']:
 					self.level.load_point()
@@ -146,8 +142,8 @@ class Game():
 				self.level.load_point()
 	
 			self.reset_keys()
-			self.clock.tick(60)
 			pygame.display.update()
+			self.clock.tick(self.level.game.max_fps)
 
 	def check_events(self):
 		for event in pygame.event.get():
@@ -221,32 +217,30 @@ class Game():
 			extra_healths_collected.update(saved_extra_healths_collected)
 
 	def quit_and_dump_data(self):
-		with open('progress_data.txt', 'w') as progress_file:
-			json.dump(load_data, progress_file)
-		with open('map_data.txt', 'w') as map_file:
-			json.dump(levels_visited, map_file)
-		with open('extra_healths_data.txt', 'w') as extra_healths_file:
-			json.dump(extra_healths_collected, extra_healths_file)	
-		with open('pickup_data.txt', 'w') as pickup_file:
-			json.dump(pickup_data, pickup_file)	
-		with open('gun_data.txt', 'w') as gun_file:
-			json.dump(gun_data, gun_file)
-		with open('neobit_data.txt', 'w') as neobit_file:
-			json.dump(neobit_data, neobit_file)	
-		with open('health_data.txt', 'w') as health_file:
-			json.dump(health_data, health_file)	
-		
+		# (disabled by Tom)
+		# TODO: check the utility of this dump
+		#
+		# with open('progress_data.txt', 'w') as progress_file:
+		# 	json.dump(load_data, progress_file)
+		# with open('map_data.txt', 'w') as map_file:
+		# 	json.dump(levels_visited, map_file)
+		# with open('extra_healths_data.txt', 'w') as extra_healths_file:
+		# 	json.dump(extra_healths_collected, extra_healths_file)
+		# with open('pickup_data.txt', 'w') as pickup_file:
+		# 	json.dump(pickup_data, pickup_file)
+		# with open('gun_data.txt', 'w') as gun_file:
+		# 	json.dump(gun_data, gun_file)
+		# with open('neobit_data.txt', 'w') as neobit_file:
+		# 	json.dump(neobit_data, neobit_file)
+		# with open('health_data.txt', 'w') as health_file:
+		# 	json.dump(health_data, health_file)
 		self.running = False
 		self.playing = False
 		self.current_menu.run_display = False
+
 
 if __name__ == "__main__":
 	g = Game()
 	while g.running:
 		g.current_menu.display_menu()
 		g.game_loop()
-
-
-
-
-
