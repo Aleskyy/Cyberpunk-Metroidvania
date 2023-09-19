@@ -452,6 +452,7 @@ class Level:
 		print('-'*33)
 		print('  SAVE GAME DONE')
 		print('-'*33)
+  
 
 		self.dump_data('gun_data.txt', 'gun_file', saved_gun_data, gun_data)
 		saved_gun_data.update(gun_data)
@@ -470,6 +471,25 @@ class Level:
 
 		health_data.update({'max_health': self.game.max_health})
 		self.dump_data('health_data.txt', 'health_file', health_data, health_data)
+
+
+		save_data = {
+			'gun_data': saved_gun_data,
+			'pickup_data': saved_pickup_data,
+			'map_data': saved_levels_visited,
+			'extra_healths_data': saved_extra_healths_collected,
+			'neobit_data': neobit_data,
+			'health_data': health_data,
+			'additional_data': {
+				'save_point': self.current_level,
+				'block_position': self.new_block_position,
+				'current_gun': self.current_gun,
+				'gun_showing': self.gun_showing
+			}
+		}
+  
+		with open('gamesave.json', 'w') as json_file:
+			json.dump(save_data, json_file, indent=4)
 
 		load_data.update({
 			'save_point': self.current_level,
