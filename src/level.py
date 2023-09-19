@@ -454,23 +454,12 @@ class Level:
 		print('-'*33)
   
 
-		self.dump_data('gun_data.txt', 'gun_file', saved_gun_data, gun_data)
 		saved_gun_data.update(gun_data)
-
-		self.dump_data('pickup_data.txt', 'pickup_file', saved_pickup_data, pickup_data)
 		saved_pickup_data.update(pickup_data)
-
-		self.dump_data('map_data.txt', 'map_file', saved_levels_visited, levels_visited)
 		saved_levels_visited.update(levels_visited)
-
-		self.dump_data('extra_healths_data.txt', 'extra_healths_file', saved_extra_healths_collected, extra_healths_collected)
 		saved_extra_healths_collected.update(extra_healths_collected)
-
 		neobit_data.update({'neobits': self.game.neobits})
-		self.dump_data('neobit_data.txt', 'neobit_file', neobit_data, neobit_data)
-
 		health_data.update({'max_health': self.game.max_health})
-		self.dump_data('health_data.txt', 'health_file', health_data, health_data)
 
 
 		save_data = {
